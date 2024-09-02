@@ -1,13 +1,13 @@
 name: CI/CD Workflow # The name of the workflow.
 on: # This section defines when the workflow should be triggered.
-  push: # Trigger the workflow on push events to the main branch.
-    branches:
-      - main
-  pull_request:  # Trigger the workflow on pull request events targeting the main branch.
-    branches:
-      - main
-  schedule:  # Trigger the workflow on schedule, e.g., every day at midnight.
-    - cron: '0 0 * * *'
+  # push: # Trigger the workflow on push events to the main branch.
+  #   branches:
+  #     - main
+  # pull_request:  # Trigger the workflow on pull request events targeting the main branch.
+  #   branches:
+  #     - main
+  # schedule:  # Trigger the workflow on schedule, e.g., every day at midnight.
+  #   - cron: '0 0 * * *'
   workflow_dispatch: # Trigger the workflow manually through the GitHub UI.
     inputs:
       environment:
