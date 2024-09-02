@@ -17,5 +17,7 @@ jobs:
     steps:
       - name: Run build script #referenced in the path saved in .github folder
         run: ./.github/scripts/build.sh
+      - name: testing runner debug
+        run: ACTIONS_RUNNER_DEBUG: true
         shell: bash
  
