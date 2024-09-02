@@ -10,25 +10,14 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - name: npm install and build webpack
-          run: |
-            npm install
-            npm run build
-        - uses: actions/upload-artifact@main
-          with:
-            name: webpack artifacts
-            path: public/ #If we just wanted to upload a single file, we use something like public/mytext.txt.
-  
-  test:
-    needs: build
-    runs-on: ubuntu-latest
+  example-job:
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/download-artifact@main
-      with:
-        name: webpack artifacts
-        path: public
+      - run: npm install -g bats
+
+jobs:
+  example-job:
+    steps:
+      - name: Run build script #referenced in the path saved in .github folder
+        run: ./.github/scripts/build.sh
+        shell: bash
+ 
