@@ -1,0 +1,123 @@
+# The name of the workflow. This is displayed in the Actions tab of your repository.
+name: CI/CD Workflow
+
+# This section defines when the workflow should be triggered.
+on:
+  # Trigger the workflow on push events to the main branch.
+  push:
+    branches:
+      - main
+  # Trigger the workflow on pull request events targeting the main branch.
+  pull_request:
+    branches:
+      - main
+  # Trigger the workflow on schedule, e.g., every day at midnight.
+  schedule:
+    - cron: '0 0 * * *'
+  # Trigger the workflow manually through the GitHub UI.
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+
+# This section defines the jobs that will run in the workflow.
+jobs:
+  # Define a job named "build" that runs on the latest Ubuntu runner.
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository code.
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js with a specific version.
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      # Install dependencies.
+      - name: Install dependencies
+        run: npm install
+
+      # Run tests.
+      - name: Run tests
+        run: npm test
+
+  # Define a job named "deploy" that runs after the "build" job and deploys the code.
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      # Checkout the repository code (needed again in the deploy job).
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up AWS CLI to deploy the application.
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'us-east-1'
+
+      # Deploy the application using a custom script.
+      - name: Deploy to AWS
+        run: ./deploy.sh
+
+  # Define a job named "lint" that runs independently of the "build" and "deploy" jobs.
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository code.
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js with a specific version.
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      # Install dependencies.
+      - name: Install dependencies
+        run: npm install
+
+      # Run linter.
+      - name: Run linter
+        run: npm run lint
+
+  # Define a job named "build-docker" that builds a Docker image.
+  build-docker:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository code.
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Docker Buildx for advanced Docker builds.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Log in to Docker Hub.
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Build the Docker image.
+      - name: Build Docker image
+        run: |
+          docker build -t my-app:latest .
+
+      # Push the Docker image to Docker Hub.
+      - name: Push Docker image
+        run: |
+          docker push my-app:latest
