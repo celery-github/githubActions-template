@@ -2,7 +2,6 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
 name: Node.js CI
-
 on:
   push:
     branches: [ "main" ]
@@ -13,7 +12,6 @@ jobs:
   example-job:
     steps:
       - run: npm install -g bats
-
 jobs:
   example-job:
     steps:
